@@ -1,6 +1,7 @@
 import App from './my-koa';
 import Router from './my-router';
 import bodyParser from './my-bodyparser';
+import dataStore from './my-nedb-promise';
 
 const app = new App();
 
@@ -21,17 +22,17 @@ const timingLogger = async (ctx, next) => {
 
 const router = new Router();
 
-const items = [];
+const itemStore = dataStore({ filename: 'items.json'});
 
 router
-  .get('/item', ctx => {
-    ctx.response.body = items;
+  .get('/item', async ctx => {
+    ctx.response.body = await itemStore.find({});
     ctx.response.status = 200;
   })
-  .post('/item', ctx => {
+  .post('/item', async ctx => {
     const item = ctx.request.body;
-    items.push(item);
-    ctx.response.body = item;
+    const insertedItem = await itemStore.insert(item);
+    ctx.response.body = insertedItem;
     ctx.response.status = 200;
   });
 
