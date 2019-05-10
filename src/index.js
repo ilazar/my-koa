@@ -2,13 +2,13 @@ import App from './my-koa';
 
 const app = new App();
 
-const middleware = ctx => {
+const sayHello = ctx => {
   const { query } = ctx.request;
   const name = query.name || 'World';
   ctx.response.body = `Hello ${name}!`;
 };
 
-app.use(middleware);
+app.use(sayHello);
 
 const port = 3000;
 
