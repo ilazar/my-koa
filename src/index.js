@@ -1,5 +1,6 @@
 import App from './my-koa';
-import bodyParser from './my-koa';
+import Router from './my-router';
+import bodyParser from './my-bodyparser';
 
 const app = new App();
 
@@ -18,16 +19,29 @@ const timingLogger = async (ctx, next) => {
   console.log(`${ctx.request.method} ${ctx.request.url} => ${ctx.response.status}, ${Date.now() - start}ms`);
 };
 
-const sayHello = ctx => {
-  const { query } = ctx.request;
-  const name = query.name || 'World';
-  ctx.response.body = `Hello ${name}!`;
-};
+const router = new Router();
+
+const items = [];
+
+router
+  .get('/item', ctx => {
+    ctx.response.body = items;
+    ctx.response.status = 200;
+  })
+  .post('/item', ctx => {
+    const item = ctx.request.body;
+    items.push(item);
+    ctx.response.body = item;
+    ctx.response.status = 200;
+  });
 
 app.use(exceptionHandler);
 app.use(timingLogger);
 app.use(bodyParser());
-app.use(sayHello);
+
+app
+  .use(router.routes())
+  .use(router.allowedMethods());
 
 const port = 3000;
 
